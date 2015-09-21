@@ -3,7 +3,7 @@ import md5
 
 VOWELS = list('aeiouy')
 CONSONANTS = list('bcdfghklmnprstvzx')
-
+CONSONANTSinv = {c:i for i,c in enumerate(CONSONANTS)}
 
 def bubble_babble(message):
     """Encode a message in bubblebabble format. 
@@ -21,9 +21,32 @@ def bubble_babble(message):
 
     Copied from http://code.activestate.com/recipes/413035-encode-messages-and-message-digests-in-bubble-babb/
     """
+    if isinstance(message,(int,long)):
+        mval = int2bytebase(message)
+    else:
+        mval = [ord(str(x)) for x in message]
+    r = bubble_babble_int(mval)
+    return r
 
+def int2bytebase(x):
+    r=[] if x>0 else [0]
+    while x>0:
+        r.append(x%256)
+        x //= 256
+    return r[::-1]
+
+def check(message):
+    "Checks bubble-babble message for integrity DOESNT WORK"
+    parts = message.split("-")
+    for i,(a,b,c,d,e) in enumerate(parts):
+        print (a-CONSONANTSinv[i])%6 , "< 4"
+        print (c-CONSONANTSinv[i])%6 , "< 4"
+ 
+
+def bubble_babble_int(mval):
+    assert len(mval)==0 or min(mval)>=0, "Encoded message items must be non-negative"
+    assert len(mval)==0 or max(mval)<256, "Encoded message items must be <256"
     seed = 1
-    mval = [ord(str(x)) for x in message]
     mlen = len(mval)
     rounds = mlen // 2 + 1
     encparts = ['x']
